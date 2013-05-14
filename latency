@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+#functions
+
+log() { 
+    printf '%s\n' "$@"
+}
+
+function usage {
+    log "Usage: $0 (show|reset|<milisseconds>)"
+}
+
+function reset {
+    sudo tc qdisc delete dev lo root 2>/dev/null
+    if [[ $? -eq 0 ]]; then
+        log "Reseted!"
+    else
+        log "Nothing to reset!"
+    fi
+}
+
+function show {
+    output=`tc -s qdisc show dev lo`
+    if [[ -z $output ]]; then
+        echo "Nothing to show!"
+    else
+        log "$output"
+    fi
+}
+
+function latency { # $1 : latency
+    sudo tc qdisc add dev lo root netem delay $1ms 2>/dev/null
+    if [[ $? -eq 0 ]]; then
+        log "Added $1ms"
+    else
+        sudo tc qdisc change dev lo root netem delay $1ms
+        log "Changed to $1ms"
+    fi
+}
+
+#main
+
+if (($# < 1)); then
+    usage
+    exit 1
+fi;
+
+case "$1" in
+    "reset")
+        reset
+        ;;
+    "show")
+        show
+        ;;
+    *)
+        latency $1
+        ;;
+esac
+
