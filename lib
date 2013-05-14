@@ -4,7 +4,7 @@ log() {
     printf '%s\n' "$@"
 }
 
-function clear {
+reset() {
     sudo tc qdisc delete dev lo root 2>/dev/null
     if [[ $? -eq 0 ]]; then
         log "Reseted!"
@@ -13,7 +13,7 @@ function clear {
     fi
 }
 
-function show {
+show() {
     output=`tc -s qdisc show dev lo`
     if [[ -z $output ]]; then
         echo "Nothing to show!"
@@ -22,13 +22,22 @@ function show {
     fi
 }
 
-function latency { # $1 : latency
+latency() { # $1 : latency
     sudo tc qdisc add dev lo root netem delay $1ms 2>/dev/null
-    if [[ $? -eq 0 ]]; then
-        log "Added $1ms"
-    else
-        sudo tc qdisc change dev lo root netem delay $1ms
-        log "Changed to $1ms"
-    fi
+    case "$?" in
+        0)
+            log "Added $1ms"
+            ;;
+        1)
+            log "Error! Must be a valid number."            
+            ;;
+        2)  
+            sudo tc qdisc change dev lo root netem delay $1ms
+            log "Changed to $1ms"
+            ;;
+        *)  
+            log "Error! Unkown error"
+            ;;
+    esac
 }
 
