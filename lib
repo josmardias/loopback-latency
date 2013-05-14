@@ -4,7 +4,7 @@ log() {
     printf '%s\n' "$@"
 }
 
-function reset {
+function clear {
     sudo tc qdisc delete dev lo root 2>/dev/null
     if [[ $? -eq 0 ]]; then
         log "Reseted!"

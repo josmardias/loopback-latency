@@ -3,7 +3,7 @@
 . ./lib
 
 function usage {
-    log "Usage: $0 (show|reset|<milisseconds>)"
+    log "Usage: $0 (<milisseconds>|show|clear)"
 }
 
 if (($# < 1)); then
@@ -12,7 +12,7 @@ if (($# < 1)); then
 fi;
 
 case "$1" in
-    "reset")
+    "clear")
         reset
         ;;
     "show")
